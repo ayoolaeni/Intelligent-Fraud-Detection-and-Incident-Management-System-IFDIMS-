@@ -164,25 +164,33 @@ application does not delete anything you've entered.
 
 ### 2.5 Trying it out with realistic demo data (optional)
 
-Fresh out of the box, IFDIMS has no transactions in it yet — just the
-ability to log in. To see the application actually working, with alerts
-and cases already populated, a technical team member can run:
+Fresh out of the box, after step 2.2, IFDIMS has no transactions in it
+yet — just the ability to log in (see [Section 3](#3-logging-in)) with an
+empty Alerts/Cases screen. The fraud-detection model is already trained
+and active (see [Current Status](#current-status-as-of-1-october-2026)
+above) — **do not run `make data` or `make train` again**, that would
+regenerate the dataset and retrain the model from scratch, which takes
+much longer and is unnecessary since a working model is already loaded.
+
+To populate the system with a realistic (entirely made-up, no real
+customer data) world of customers and transactions, run these two
+commands, in order, from the project folder:
 
 ```
-make demo
+make seed-demo
+make stream
 ```
 
-This single command generates a realistic (entirely made-up, no real
-customer data) world of customers and transactions, trains the
-fraud-detection model on it, loads 45 days of history into the database,
-and then streams the remaining transactions through the system live — so
-within a few minutes, the Alerts and Cases screens fill up exactly as they
-would in production. This is the best way to demonstrate the system to
-someone before it's connected to a real bank's transaction feed.
+- `make seed-demo` bulk-loads 45 days of simulated transaction history
+  into the database in one go (a few seconds).
+- `make stream` replays the remaining days of that same simulated world
+  live against the running application, exactly as if real transactions
+  were arriving one at a time — so you can watch the Alerts and Cases
+  screens fill up in near real time over the next few minutes.
 
-(If `make` is not available on your computer, ask your technical contact
-to run it — it is a short, standard set of commands defined in the
-project's `Makefile`.)
+(If `make` is not available on your computer — mainly a Windows thing —
+ask your technical contact to run these two commands; each is just a
+single Python script defined in the project's `Makefile`.)
 
 ---
 
