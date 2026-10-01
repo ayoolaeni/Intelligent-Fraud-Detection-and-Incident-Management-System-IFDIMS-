@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fraud-core"
+version = "0.1.0"
+description = "Shared feature engineering for IFDIMS (training + live scoring)"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.1",
+    "numpy>=1.26",
+]
+
+[tool.setuptools]
+packages = ["fraud_core"]

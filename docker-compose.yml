@@ -1,0 +1,52 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ifdims}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ifdims}
+      POSTGRES_DB: ${POSTGRES_DB:-ifdims}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ifdims} -d ${POSTGRES_DB:-ifdims}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-ifdims}:${POSTGRES_PASSWORD:-ifdims}@db:5432/${POSTGRES_DB:-ifdims}
+      MODELS_DIR: /app/models
+      ATTACHMENTS_DIR: /data/attachments
+      UVICORN_WORKERS: ${UVICORN_WORKERS:-10}
+    volumes:
+      - ./models:/app/models
+      - attachments:/data/attachments
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+  attachments:
