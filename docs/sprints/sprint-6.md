@@ -79,6 +79,34 @@ methodology and why a dedicated deployment host is expected to clear it
 comfortably, is in `reports/loadtest_summary.md`. Reported as-measured
 rather than rounded up to a pass.
 
+## Update: demo-scale model trained, registered, and activated
+
+Training was deliberately run at a demo scale (500 synthetic customers,
+90 days, ~103,000 transactions) rather than the full ~5000-customer
+target, per a project decision to prioritize finishing a working,
+fully-deployed system over maximizing training scale. Getting there
+surfaced and fixed a real bug, not just a scope decision — see
+`docs/DECISIONS.md` D24: `RandomizedSearchCV(n_jobs=-1)` nested around a
+`RandomForestClassifier` that itself sets `n_jobs=-1` was oversubscribing
+the CPU badly enough (worse on Windows, where `loky` process/memmap
+overhead is high) that a training run which should take minutes appeared
+to hang for 30+ minutes with zero output. A second, separate issue made
+this worse to diagnose: redirecting output to a log file switched
+Python's `print()` to full buffering, so real progress was invisible
+while only unbuffered `warnings.warn()` calls showed up — making a
+healthy run look stuck. Fixed by setting the outer search to `n_jobs=1`
+and always running training with `python -u`.
+
+With both fixed, training completed in a few minutes and selected XGBoost
+(SMOTE variant): precision 0.92, recall 0.78, F1 0.84, PR-AUC 0.86, 41ms
+scoring latency. Registered and activated as `20261001-2222-xgboost` in
+the running Docker stack's database (picked up by all workers within 10
+seconds via `ModelRegistry.refresh_if_changed()`, no restart needed), and
+re-ran `pipeline.evaluate` to regenerate the Chapter Four outputs against
+it in `reports/`. `HOW_IT_WORKS.md`'s status section was updated to match.
+Full test suites (ml, backend including the slow parity test, frontend)
+were re-run cleanly afterward: 47 + 38 + 13 passing, `tsc --noEmit` clean.
+
 ## What a reader should know wasn't done
 
 - No browser-automation tool was available in the environment this was

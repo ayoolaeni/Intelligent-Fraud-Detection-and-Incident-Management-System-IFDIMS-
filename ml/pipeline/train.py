@@ -100,7 +100,13 @@ def _tune(algorithm: str, pipeline: ImbPipeline, X_train, y_train, cv):
         scoring="average_precision",
         cv=cv,
         random_state=RANDOM_STATE,
-        n_jobs=-1,
+        # Serial outer loop: RandomForestClassifier/XGBoost already parallelize
+        # internally (n_jobs=-1 / default multi-threading), so an outer n_jobs=-1
+        # here causes nested-parallelism oversubscription (N worker processes each
+        # spawning their own full thread pool). On Windows this is compounded by
+        # loky's per-dispatch process/memmap overhead, which was observed to turn
+        # a sub-minute search into a 30+ minute hang with zero progress output.
+        n_jobs=1,
         refit=True,
     )
     search.fit(X_train, y_train)

@@ -225,3 +225,37 @@ silently treating almost the entire world as "future" because `start`
 (`transactions_df["txn_time"].min()`) picked up one of these outlier rows.
 Fixed by using `start_date`/`end_date` like the other three scenarios;
 covered by `ml/tests/test_generator.py::test_all_transactions_fall_within_the_generation_window`.
+
+## D24 — Scoped training to a 500-customer demo dataset; fixed a RandomizedSearchCV n_jobs bug along the way
+Initial attempts to train on the full ~5000-customer dataset (and then a
+first 500-customer attempt) appeared to hang indefinitely — 30+ minutes
+with no progress output, eventually killed with nothing saved. Two
+distinct problems were involved, not one:
+
+1. `_tune()` ran `RandomizedSearchCV(..., n_jobs=-1)` around a pipeline
+   whose `RandomForestClassifier` *also* sets `n_jobs=-1` internally
+   (Section 6.1's own hyperparameter spec). Nesting two `n_jobs=-1` layers
+   oversubscribes the CPU — each outer worker process spawns its own full
+   thread pool — which is especially costly on Windows, where `loky`'s
+   per-dispatch process/memmap overhead is high. Fixed by setting the
+   outer search to `n_jobs=1` and letting the inner estimators
+   (RandomForest, XGBoost) parallelize internally instead.
+2. Separately, and more misleadingly: once output was redirected to a log
+   file (for the background training run), Python's `print()` calls were
+   fully buffered rather than line-buffered, so real progress sat
+   invisible in the buffer while only `warnings.warn()` (unbuffered,
+   straight to stderr) appeared — making a training run that was actually
+   progressing normally look completely stuck. Running with `python -u`
+   (unbuffered stdout) fixed the visibility problem and showed the first
+   bug fix was in fact working.
+
+Given this is a demonstration system, not a production deployment, training
+was deliberately scoped to 500 synthetic customers / 90 days (~103,000
+transactions, 511 labelled fraud) rather than the full ~5000-customer /
+~1,000,000-row target, to keep the full build-to-deployment cycle fast and
+reliable. The resulting model (`20261001-2222-xgboost`) was registered,
+activated, and evaluated like any other: precision 0.92, recall 0.78, F1
+0.84, PR-AUC 0.86, 41ms scoring latency — see `reports/` for the full
+Chapter Four outputs. Retraining at a larger scale later only requires
+re-running `generate_synthetic` / `build_features` / `train` with bigger
+`--customers`/`--days` values; no code changes are needed.

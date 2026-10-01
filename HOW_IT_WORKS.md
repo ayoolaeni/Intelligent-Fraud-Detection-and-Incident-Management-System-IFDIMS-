@@ -18,22 +18,26 @@ word is unavoidable, it is explained the first time it appears.
 system right now** — this is not just a plan on paper, it is actually
 running and scoring transactions as you read this.
 
-- **Active model:** `20260929-2045-xgboost`. This is an XGBoost model (one
+- **Active model:** `20261001-2222-xgboost`. This is an XGBoost model (one
   of the three model types compared during training — see
-  [Section 4](#4-how-it-works--the-big-picture)) trained on a realistic
-  synthetic dataset and already validated: it correctly separates fraud
-  from genuine transactions with strong accuracy on data it had never
-  seen during training.
-- You can see it yourself, along with its accuracy statistics (precision,
-  recall, and more) once logged in, under **Admin > Models**
-  (see [Section 8](#8-a-tour-of-every-screen)).
-- A second, larger version of the model — trained on a bigger dataset for
-  even better accuracy — is being prepared in the background. When it's
-  ready, an administrator will be able to switch to it from the same
-  Models screen with **no downtime and no interruption to the running
-  system** — that live hot-swap capability is itself a built-in feature,
-  not a special one-off step (see [Section 8](#8-a-tour-of-every-screen),
-  "Admin: Models").
+  [Section 4](#4-how-it-works--the-big-picture)), trained on a realistic
+  demo-scale synthetic dataset (500 simulated customers, 90 days of
+  activity, roughly 103,000 transactions) and validated on data it had
+  never seen during training.
+- **Measured accuracy on unseen test data:** precision 92%, recall 78%,
+  F1 0.84, and it scores each transaction in about 41 milliseconds — fast
+  enough to return a risk decision before the transaction finishes
+  processing.
+- You can see these statistics yourself once logged in, under
+  **Admin > Models** (see [Section 8](#8-a-tour-of-every-screen)).
+- This is a demo-scale model, sized to prove the full system end-to-end
+  (data generation, training, evaluation, deployment, live scoring) rather
+  than to maximize accuracy. Retraining on a larger dataset later is a
+  routine operation, not a rebuild: the same pipeline is simply pointed at
+  more data, and the system's built-in hot-swap capability lets an
+  administrator switch to the new model from the Models screen with **no
+  downtime and no interruption to the running system** (see
+  [Section 8](#8-a-tour-of-every-screen), "Admin: Models").
 
 In short: the system described in this guide is not hypothetical. It is
 built, running, and already making real fraud-risk decisions on every
