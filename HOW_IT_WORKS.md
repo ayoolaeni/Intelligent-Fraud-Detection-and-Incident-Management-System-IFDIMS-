@@ -30,6 +30,13 @@ running and scoring transactions as you read this.
   processing.
 - You can see these statistics yourself once logged in, under
   **Admin > Models** (see [Section 8](#8-a-tour-of-every-screen)).
+- **This trained model is included in the project itself** (under the
+  `models/` folder) and is activated automatically the very first time the
+  application starts, with no manual step. This means: if this project is
+  copied, downloaded, or cloned onto a brand new computer and started with
+  `docker compose up` for the first time, it does **not** need to be
+  trained again — a fresh install is scoring transactions within seconds
+  of starting up.
 - This is a demo-scale model, sized to prove the full system end-to-end
   (data generation, training, evaluation, deployment, live scoring) rather
   than to maximize accuracy. Retraining on a larger dataset later is a

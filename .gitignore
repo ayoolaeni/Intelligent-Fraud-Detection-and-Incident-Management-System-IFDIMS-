@@ -24,6 +24,11 @@ data/processed/*
 !data/processed/.gitkeep
 models/*
 !models/.gitkeep
+# The one trained model bundle committed so a fresh clone works out of the
+# box (see backend/app/seed.py's auto-registration and docs/DECISIONS.md
+# D25) -- any later retraining still stays gitignored by the rule above.
+!models/20261001-2222-xgboost/
+!models/20261001-2222-xgboost/**
 reports/*
 !reports/.gitkeep
 attachments/

@@ -1,0 +1,159 @@
+{
+  "algorithm": "xgboost",
+  "version": "20261001-2222-xgboost",
+  "trained_at": "2026-10-01T22:22:00.228577+00:00",
+  "training_time_seconds": 3818.727659199998,
+  "best_hyperparameters": {
+    "clf__subsample": 0.7,
+    "clf__n_estimators": 600,
+    "clf__max_depth": 5,
+    "clf__learning_rate": 0.03,
+    "clf__colsample_bytree": 0.7
+  },
+  "chosen_variant": "smote",
+  "family_comparison": {
+    "logistic_regression": {
+      "variant": "smote",
+      "val_pr_auc": 0.5638710325857785,
+      "all_variants": {
+        "smote": {
+          "best_params": {
+            "clf__penalty": "l2",
+            "clf__C": 0.1
+          },
+          "val_pr_auc": 0.5638710325857785
+        },
+        "class_weight": {
+          "best_params": {
+            "clf__penalty": "l2",
+            "clf__C": 0.01
+          },
+          "val_pr_auc": 0.5066530829008714
+        }
+      }
+    },
+    "random_forest": {
+      "variant": "smote",
+      "val_pr_auc": 0.9345079375117911,
+      "all_variants": {
+        "smote": {
+          "best_params": {
+            "clf__n_estimators": 200,
+            "clf__min_samples_leaf": 1,
+            "clf__max_depth": 16
+          },
+          "val_pr_auc": 0.9345079375117911
+        },
+        "class_weight": {
+          "best_params": {
+            "clf__n_estimators": 400,
+            "clf__min_samples_leaf": 1,
+            "clf__max_depth": null
+          },
+          "val_pr_auc": 0.9071484099630984
+        }
+      }
+    },
+    "xgboost": {
+      "variant": "smote",
+      "val_pr_auc": 0.9535477988740564,
+      "all_variants": {
+        "smote": {
+          "best_params": {
+            "clf__subsample": 0.7,
+            "clf__n_estimators": 600,
+            "clf__max_depth": 5,
+            "clf__learning_rate": 0.03,
+            "clf__colsample_bytree": 0.7
+          },
+          "val_pr_auc": 0.9535477988740564
+        },
+        "scale_pos_weight": {
+          "best_params": {
+            "clf__subsample": 0.7,
+            "clf__n_estimators": 600,
+            "clf__max_depth": 7,
+            "clf__learning_rate": 0.03,
+            "clf__colsample_bytree": 0.7
+          },
+          "val_pr_auc": 0.9311689948818144
+        }
+      }
+    }
+  },
+  "isolation_forest_comparison": {
+    "params": {
+      "n_estimators": 300,
+      "contamination": "auto"
+    },
+    "val_pr_auc": 0.46830324078927105
+  },
+  "validation_metrics": {
+    "threshold": 0.5,
+    "precision": 0.9545454545454546,
+    "recall": 0.8181818181818182,
+    "f1": 0.8811188811188811,
+    "false_positive_rate": 0.00019538882375928098,
+    "roc_auc": 0.9989765347326894,
+    "pr_auc": 0.9535477988740564,
+    "confusion_matrix": {
+      "tn": 15351,
+      "fp": 3,
+      "fn": 14,
+      "tp": 63
+    }
+  },
+  "test_metrics": {
+    "threshold": 0.5,
+    "precision": 0.921875,
+    "recall": 0.7763157894736842,
+    "f1": 0.8428571428571429,
+    "false_positive_rate": 0.00032562683165092806,
+    "roc_auc": 0.9987446228727141,
+    "pr_auc": 0.8566740890415322,
+    "confusion_matrix": {
+      "tn": 15350,
+      "fp": 5,
+      "fn": 17,
+      "tp": 59
+    }
+  },
+  "metrics_at_default_thresholds": {
+    "test_at_0.40": {
+      "threshold": 0.4,
+      "precision": 0.8571428571428571,
+      "recall": 0.7894736842105263
+    },
+    "test_at_0.70": {
+      "threshold": 0.7,
+      "precision": 0.9629629629629629,
+      "recall": 0.6842105263157895
+    },
+    "val_at_0.40": {
+      "threshold": 0.4,
+      "precision": 0.9444444444444444,
+      "recall": 0.8831168831168831
+    },
+    "val_at_0.70": {
+      "threshold": 0.7,
+      "precision": 0.9833333333333333,
+      "recall": 0.7662337662337663
+    }
+  },
+  "suggested_thresholds": {
+    "suggested_medium_threshold": 0.13141699135303497,
+    "suggested_high_threshold": 0.1776670515537262
+  },
+  "latency_ms_per_prediction": 41.37841240000125,
+  "dataset_summary": {
+    "n_train": 72011,
+    "n_val": 15431,
+    "n_test": 15431,
+    "n_fraud_train": 358,
+    "n_fraud_val": 77,
+    "n_fraud_test": 76,
+    "global_median_amount": 42061.15,
+    "features_path": "..\\data\\processed\\train500_features.parquet",
+    "extra_labels_path": null
+  }
+}

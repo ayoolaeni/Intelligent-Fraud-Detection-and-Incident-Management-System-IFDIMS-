@@ -259,3 +259,33 @@ activated, and evaluated like any other: precision 0.92, recall 0.78, F1
 Chapter Four outputs. Retraining at a larger scale later only requires
 re-running `generate_synthetic` / `build_features` / `train` with bigger
 `--customers`/`--days` values; no code changes are needed.
+
+## D25 — Commit the trained model bundle and auto-register it on seed
+A gap was found while writing deployment instructions: `models/*` is
+gitignored (only `.gitkeep` was tracked), and `pipeline.register_model
+--activate` was always a separate, manual step run against a specific
+`DATABASE_URL`. That means a fresh `git clone` followed by `docker compose
+up` would start with an empty `models/` folder and no `model_version` row
+at all — the scoring endpoint explicitly returns `503 NO_ACTIVE_MODEL`
+when `model_registry.loaded` is `None` (`app/api/v1/transactions.py`), so
+the system would be non-functional out of the box until someone trained or
+manually registered a model.
+
+Fixed two ways, both needed:
+1. `.gitignore` now carves out an exception for the one trained bundle
+   (`models/20261001-2222-xgboost/`) so it comes down with the repo,
+   while every *other* future training run's output folder stays
+   gitignored as before.
+2. `backend/app/seed.py` gained `seed_model_if_needed()`, run as part of
+   the existing startup seed step (already wired into the Docker image's
+   `CMD`: `alembic upgrade head && python -m app.seed && uvicorn ...`). If
+   no `model_version` row is active yet, it scans `MODELS_DIR` for bundle
+   folders (anything with both `metadata.json` and `model.joblib`), picks
+   the chronologically latest by version string, and registers +
+   activates it. If a model is already active (e.g., an administrator
+   already deployed a newer one), it's a no-op.
+
+Net effect: a brand new clone, on a brand new machine, with `docker
+compose up` run for the very first time, scores transactions within
+seconds — no training, no manual registration step. Covered by
+`backend/tests/test_seed.py`.
