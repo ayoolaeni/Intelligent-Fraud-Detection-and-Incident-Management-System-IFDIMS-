@@ -9,8 +9,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY backend/requirements.txt /app/backend/requirements.txt
 COPY ml /app/ml
 
-RUN pip install --no-cache-dir -r /app/backend/requirements.txt \
-    && pip install --no-cache-dir -e /app/ml
+# --default-timeout/--retries: large wheels (xgboost, pandas, shap, ...) can
+# exceed pip's default per-read timeout on a slow or flaky connection,
+# failing the whole build with a ReadTimeoutError. This matters here more
+# than most Dockerfiles since this image is meant to be built on a client's
+# home/office network, not just CI.
+RUN pip install --no-cache-dir --default-timeout=180 --retries 10 -r /app/backend/requirements.txt \
+    && pip install --no-cache-dir --default-timeout=180 --retries 10 -e /app/ml
 
 COPY backend /app/backend
 WORKDIR /app/backend
